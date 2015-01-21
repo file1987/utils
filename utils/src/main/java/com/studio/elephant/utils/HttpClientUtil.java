@@ -96,9 +96,9 @@ public final class HttpClientUtil {
 				// BasicClientConnectionManager
 				cm = new BasicClientConnectionManager(schemeRegistry);
 			} catch (NoSuchAlgorithmException e) {
-				e.printStackTrace();
+				logger.error("", e);
 			} catch (KeyManagementException e) {
-				e.printStackTrace();
+				logger.error("", e);
 			}
 
 		}
@@ -132,9 +132,9 @@ public final class HttpClientUtil {
 				logger.debug("statusCode:"+httpResponse.getStatusLine().getStatusCode() + " entity:"+httpResponse.getEntity());
 			return EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
 		} catch (ClientProtocolException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		return null;
 	}
@@ -164,11 +164,11 @@ public final class HttpClientUtil {
 			
 			return EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		} catch (ClientProtocolException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		return null;
 	}
@@ -189,11 +189,11 @@ public final class HttpClientUtil {
 			httpResponse = client.execute(httpPost);
 			return EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		} catch (ClientProtocolException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		return null;
 	}
@@ -231,9 +231,9 @@ public final class HttpClientUtil {
 			httpResponse = client.execute(new HttpGet(builder.toString()));
 			return EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
 		} catch (ClientProtocolException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		return null;
 		
@@ -271,11 +271,11 @@ public final class HttpClientUtil {
 			httpResponse = client.execute(httpPost);
 			return EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		} catch (ClientProtocolException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		return null;
 	}
@@ -305,11 +305,11 @@ public final class HttpClientUtil {
 			httpResponse = client.execute(httpPost);
 			return EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		} catch (ClientProtocolException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		return null;
 	}
