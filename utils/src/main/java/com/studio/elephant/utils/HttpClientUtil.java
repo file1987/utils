@@ -13,12 +13,16 @@ import java.util.Map.Entry;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+
+import org.apache.http.Header;
+import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.GzipDecompressingEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -205,14 +209,9 @@ public final class HttpClientUtil {
 	 * @param header
 	 * @return
 	 */
-	public static String doGetMethod(String url,Map<String,String> params,Map<String,Object> header){
+	public static String doGetMethod(String url,Map<String,String> params,Map<String,String> header){
 		if(header==null||header.isEmpty())
 			return doGetMethod(url, params);
-		
-		HttpParams httpParams = new BasicHttpParams();
-		for(Entry<String,Object> entry:header.entrySet()){
-			httpParams.setParameter(entry.getKey(), entry.getValue());
-		}
 		
 		StringBuilder builder = new StringBuilder(url);
 		if(builder.indexOf("?")==-1){
@@ -220,7 +219,7 @@ public final class HttpClientUtil {
 		}else{
 			builder.append("&t=").append(System.currentTimeMillis());
 		}
-		HttpClient client = createDefault(builder.toString(),httpParams);
+		HttpClient client = createDefault(builder.toString());
 		if(params!=null&&!params.isEmpty()){
 			for(Entry<String,String> entry:params.entrySet()){
 				builder.append("&").append(entry.getKey()).append("=").append(entry.getValue());	
@@ -228,8 +227,12 @@ public final class HttpClientUtil {
 		}	
 		HttpResponse httpResponse = null;
 		try {
-			httpResponse = client.execute(new HttpGet(builder.toString()));
-			return EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
+			HttpGet get = new HttpGet(builder.toString());
+			for(Entry<String,String> entry:header.entrySet()){
+				get.addHeader(entry.getKey(), entry.getValue());
+			}
+			httpResponse = client.execute(get);
+			return EntityUtils.toString(getHttpEntity(httpResponse), "UTF-8");
 		} catch (ClientProtocolException e) {
 			logger.error("", e);
 		} catch (IOException e) {
@@ -246,14 +249,10 @@ public final class HttpClientUtil {
 	 * @param header
 	 * @return
 	 */
-	public static String doPostMethod(String url,Map<String,String> params,Map<String,Object> header){
+	public static String doPostMethod(String url,Map<String,String> params,Map<String,String> header){
 		if(header==null||header.isEmpty())
 			return doPostMethod(url, params);
 		
-		HttpParams httpParams = new BasicHttpParams();
-		for(Entry<String,Object> entry:header.entrySet()){
-			httpParams.setParameter(entry.getKey(), entry.getValue());
-		}
 		HttpPost httpPost = null;
 		HttpResponse httpResponse = null;
 		List<NameValuePair> _params = null;
@@ -263,13 +262,16 @@ public final class HttpClientUtil {
 				_params.add(new BasicNameValuePair(entry.getKey(),entry.getValue()));
 			
 		}
-		HttpClient client = createDefault(url,httpParams);
+		HttpClient client = createDefault(url);
 		try {
 			httpPost = new HttpPost(url);
 			HttpEntity entity =  new UrlEncodedFormEntity(_params , "UTF-8");
 			httpPost.setEntity(entity);
+			for(Entry<String,String> entry:header.entrySet()){
+				httpPost.addHeader(entry.getKey(), entry.getValue());
+			}
 			httpResponse = client.execute(httpPost);
-			return EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
+			return EntityUtils.toString(getHttpEntity(httpResponse), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			logger.error("", e);
 		} catch (ClientProtocolException e) {
@@ -287,23 +289,23 @@ public final class HttpClientUtil {
 	 * @param header
 	 * @return
 	 */
-	public static String doPostMethod(String url,String params,Map<String,Object> header){
+	public static String doPostMethod(String url,String params,Map<String,String> header){
 		if(header==null||header.isEmpty())
 			return doPostMethod(url, params);
 		
-		HttpParams httpParams = new BasicHttpParams();
-		for(Entry<String,Object> entry:header.entrySet()){
-			httpParams.setParameter(entry.getKey(), entry.getValue());
-		}
+		
 		HttpPost httpPost = null;
 		HttpResponse httpResponse = null;
-		HttpClient client = createDefault(url,httpParams);
+		HttpClient client = createDefault(url);
 		try {
 			httpPost = new HttpPost(url);
 			HttpEntity entity = new StringEntity(params, "UTF-8");;
 			httpPost.setEntity(entity);
+			for(Entry<String,String> entry:header.entrySet()){
+				httpPost.addHeader(entry.getKey(), entry.getValue());
+			}
 			httpResponse = client.execute(httpPost);
-			return EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
+			return EntityUtils.toString(getHttpEntity(httpResponse), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			logger.error("", e);
 		} catch (ClientProtocolException e) {
@@ -315,12 +317,17 @@ public final class HttpClientUtil {
 	}
 	
 	
+	private static HttpEntity  getHttpEntity(HttpResponse httpResponse){
+		HttpEntity  entity = httpResponse.getEntity();
+		Header header = entity.getContentEncoding();
+		if(header!=null)
+			for(HeaderElement element:header.getElements()){
+				if(element.getName().equalsIgnoreCase("gzip"))
+					return new GzipDecompressingEntity(entity);
+			}
+		return entity;
+	}
 	
 	
 	
-	
-	
-	
-	
-
 }
