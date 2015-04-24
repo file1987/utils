@@ -130,14 +130,59 @@ public final class StringUtil {
 			return Float.valueOf(str);
 		return null;
 	}
+	/**
+	 * 移除String的所有空格
+	 * @param str
+	 * @return
+	 */
+	public static String removalSpace(String str){
+		if(isEmpty(str))
+			return null;
+		return str.replaceAll(" ", "");
+	}
 	
-	
-	
-	
+	/**
+	 * 比较版本号，是否需要更新
+	 * @param curVer 当前版本号
+	 * @param newVer 新的版本号
+	 * @return 是否需要更新
+	 */
+	public static boolean compare(String curVer,String newVer){
+		//有一个版本号为空，不需要更新
+		if(isEmpty(curVer)||isEmpty(newVer)||(curVer.trim().equals(newVer.trim())))
+			return false;
+			
+		String[] curVers = curVer.split("\\.");
+		String[] newVers = newVer.split("\\.");
+		int curLen = curVers.length;
+		int newLen = newVers.length;
+		int minLen = curLen>newLen?newLen:curLen;
+		for(int i=0;i<minLen;i++){
+			String pv1 = curVers[i].trim();
+			String pv2 = newVers[i].trim();
+			//分解之后不是数字，无需更新
+			if(!isNumber(pv1)||!isNumber(pv2))
+				return false;
+			
+			int _pv1 = Integer.valueOf(pv1);
+			int _pv2 = Integer.valueOf(pv2);
+			//同个号段，如果新>当前，需要更新，<当前，不需要更新，不然比较下一段
+			if(_pv2>_pv1)
+				return true;
+			else if(_pv2<_pv1){
+				return false;
+			}
+		}
+		//当前的长度比新的长度少，需要更新
+		if(curLen<newLen)
+			return true;
+		return  false;
+	}
 	
 	
 	public static void main(String[] args) {
-		System.out.println(toInt("  1.00000  "));
+		System.out.println(removalSpace("  1 . 0 0  0 0 0  "));
+		System.out.println(removalSpace("  kong fu tea  "));
 	}
 	
 	
