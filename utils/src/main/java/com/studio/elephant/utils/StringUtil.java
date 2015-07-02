@@ -34,7 +34,11 @@ public final class StringUtil {
 	public static boolean isNumber(final String str){
 		if(isEmptyIgnoreBlank(str))
 			return false;
-		return Pattern.matches(IS_NUMBER_EXP, str.trim());
+		String num = str.trim();
+		if(num.startsWith("-")){
+			num = num.replace("-", "");
+		}
+		return Pattern.matches(IS_NUMBER_EXP, num);
 	}
 	/**
 	 * 字符串是否相等，忽略前后空格
@@ -181,8 +185,9 @@ public final class StringUtil {
 	
 	
 	public static void main(String[] args) {
-		System.out.println(removalSpace("  1 . 0 0  0 0 0  "));
-		System.out.println(removalSpace("  kong fu tea  "));
+		//System.out.println(removalSpace("  1 . 0 0  0 0 0  "));
+		//System.out.println(removalSpace("  kong fu tea  "));
+		System.out.println(isNumber("-0.80808080"));
 	}
 	
 	
